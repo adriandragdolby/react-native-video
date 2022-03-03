@@ -323,6 +323,7 @@ var styles = StyleSheet.create({
 * [controls](#controls)
 * [currentPlaybackTime](#currentPlaybackTime)
 * [disableFocus](#disableFocus)
+* [extensionRenderMode](#extensionRenderMode)
 * [filter](#filter)
 * [filterEnabled](#filterEnabled)
 * [fullscreen](#fullscreen)
@@ -374,6 +375,7 @@ var styles = StyleSheet.create({
 * [onReadyForDisplay](#onreadyfordisplay)
 * [onPictureInPictureStatusChanged](#onpictureinpicturestatuschanged)
 * [onPlaybackRateChange](#onplaybackratechange)
+* [onPlayedTracksChange](#onplayedtrackschange)
 * [onProgress](#onprogress)
 * [onSeek](#onseek)
 * [onRestoreUserInterfaceForPictureInPictureStop](#onrestoreuserinterfaceforpictureinpicturestop)
@@ -435,6 +437,28 @@ bufferConfig={{
 
 Platforms: Android ExoPlayer
 
+#### captionConfig
+Adjust caption appearance. This prop takes an object with one or more of the properties listed below.
+
+Property | Type | Description
+--- | --- | ---
+style | object (optional) | customize caption appearance<br>Properties:<br> * foregroundColor (string hex - required) - caption text color<br> * backgroundColor (string hex - required) - caption background color<br> * windowColor (string hex - required) - preferred window color
+linesRespected | boolean (optional) | specify if subtitle embedded lines should respected
+
+Example values:
+```
+captionConfig={{
+  style: {
+    foregroundColor: "#FFFFFF",
+    backgroundColor: "#40000000",
+    windowColor: "#00FFFFFF"
+  },
+  linesRespected: false
+}}
+```
+
+Platforms: Android ExoPlayer
+
 #### currentPlaybackTime
 When playing an HLS live stream with a `EXT-X-PROGRAM-DATE-TIME` tag configured, then this property will contain the epoch value in msec.
 
@@ -459,6 +483,17 @@ Determines whether video audio should override background music/audio in Android
 * **true** - Let background audio/music from other apps play
 
 Platforms: Android Exoplayer
+
+#### extensionRenderMode
+Sets the extension renderer mode, which determines if and how available extension renderers are used. Note that extensions must be included in the application build for them to be considered available.
+* **0 (default)** EXTENSION_RENDERER_MODE_OFF Do not allow use of extension renderers.
+* **1** EXTENSION_RENDERER_MODE_ON Allow use of extension renderers. Extension renderers are indexed *after* core renderers of the same type
+* **2** EXTENSION_RENDERER_MODE_PREFER Allow use of extension renderers. Extension renderers are indexed *before* core renderers of the same type.
+* **-1** Select one of above modes depending on device supported media codecs.
+  * audio/ac4 is supported then EXTENSION_RENDERER_MODE_OFF is selected
+  * otherwise EXTENSION_RENDERER_MODE_PREFER is selected
+
+Platforms: Android ExoPlayer
 
 ### DRM
 To setup DRM please follow [this guide](./DRM.md)
@@ -732,7 +767,7 @@ Type | Value | Description
 "language" | string | Play the audio track with the language specified as the Value, e.g. "fr"
 "index" | number | Play the audio track with the index specified as the value, e.g. 0
 
-If a track matching the specified Type (and Value if appropriate) is unavailable, the first audio track will be played. If multiple tracks match the criteria, the first match will be used.
+If a track matching the specified Type (and Value if appropriate) is unavailable, the first audio track will be played. If multiple tracks match the criteria than: the first match will be used (iOS), player will choose one of tracks for specified language (Android ExoPlayer)
 
 Platforms: Android ExoPlayer, iOS
 
@@ -764,7 +799,7 @@ Type | Value | Description
 
 Both iOS & Android (only 4.4 and higher) offer Settings to enable Captions for hearing impaired people. If "system" is selected and the Captions Setting is enabled, iOS/Android will look for a caption that matches that customer's language and display it. 
 
-If a track matching the specified Type (and Value if appropriate) is unavailable, no text track will be displayed. If multiple tracks match the criteria, the first match will be used.
+If a track matching the specified Type (and Value if appropriate) is unavailable, no text track will be displayed. If multiple tracks match the criteria than: the first match will be used (iOS), player will choose one of tracks for specified language (Android ExoPlayer)
 
 Platforms: Android ExoPlayer, iOS
 
@@ -1049,9 +1084,9 @@ Property | Type | Description
 currentPosition | number | Time in seconds where the media will start
 duration | number | Length of the media in seconds
 naturalSize | object | Properties:<br> * width - Width in pixels that the video was encoded at<br> * height - Height in pixels that the video was encoded at<br> * orientation - "portrait" or "landscape"
-audioTracks | array | An array of audio track info objects with the following properties:<br> * index - Index number<br> * title - Description of the track<br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track
-textTracks | array | An array of text track info objects with the following properties:<br> * index - Index number<br> * title - Description of the track<br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO 639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track
-videoTracks | array | An array of video track info objects with the following properties:<br> * trackId - ID for the track<br> * bitrate - Bit rate in bits per second<br> * codecs - Comma separated list of codecs<br> * height - Height of the video<br> * width - Width of the video
+audioTracks | array | An array of audio track info objects with the following properties:<br> * index - Index number (note: in Android Exoplayer it is not simple index in a list, it complex index which calculation is based on render, group and track indices)<br> * trackId - ID for the track <br> * title - Description of the track (Android Exoplayer: it is capitalized `Locale#getDisplayName(locale))` created from language code <br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track
+textTracks | array | An array of text track info objects with the following properties:<br> * index - Index number (note: in Android Exoplayer it is not simple index in a list, it complex index which calculation is based on render, group and track indices)<br> * trackId - ID for the track <br> * title - Description of the track (Android Exoplayer: it is capitalized `Locale#getDisplayName(locale))` created from language code <br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO 639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track
+videoTracks | array | An array of video track info objects with the following properties:<br> * index - Index number (note: in Android Exoplayer it is not simple index in a list, it complex index which calculation is based on render, group and track indices)<br> * trackId - ID for the track<br> * bitrate - Bit rate in bits per second<br> * codecs - Comma separated list of codecs<br> * height - Height of the video<br> * width - Width of the video
 
 Example:
 ```
@@ -1153,6 +1188,16 @@ Example:
 
 Platforms: all
 
+#### onPlayedTracksChange
+Callback function that is called when currently played track change.
+
+Property | Type | Description
+--- | --- | ---
+audioTrack | object (optional) | Selected audio track info object with the following properties:<br> * trackId - ID for the track <br> * title - Description of the track (Android Exoplayer: it is capitalized `Locale#getDisplayName(locale))` created from language code <br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track<br> * file - file name which is the last path segment of the base url of played representation (DASH only)
+textTrack | object (optional) | Selected text track info object with the following properties:<br> * trackId - ID for the track <br> * title - Description of the track (Android Exoplayer: it is capitalized `Locale#getDisplayName(locale))` created from language code <br> * language - 2 letter [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) or 3 letter [ISO 639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) language code<br> * type - Mime type of track
+videoTrack | object (optional) | Selected video track info object with the following properties:<br> * trackId - ID for the track<br> * bitrate - Bit rate in bits per second<br> * codecs - Comma separated list of codecs<br> * height - Height of the video<br> * width - Width of the video<br> * type - Mime type of track
+
+Platforms: Android ExoPlayer
 
 #### onProgress
 Callback function that is called every progressUpdateInterval seconds with info about which position the media is currently playing.

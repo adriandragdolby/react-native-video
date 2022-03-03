@@ -109,6 +109,12 @@ export default class Video extends Component {
     }
   };
 
+  _onPlayedTracksChange = (event) => {
+    if (this.props.onPlayedTracksChange) {
+      this.props.onPlayedTracksChange(event.nativeEvent);
+    }
+  }
+
   _onError = (event) => {
     if (this.props.onError) {
       this.props.onError(event.nativeEvent);
@@ -306,6 +312,7 @@ export default class Video extends Component {
       },
       onVideoLoadStart: this._onLoadStart,
       onVideoLoad: this._onLoad,
+      onPlayedTracksChange: this._onPlayedTracksChange,
       onVideoError: this._onError,
       onVideoProgress: this._onProgress,
       onVideoSeek: this._onSeek,
@@ -462,6 +469,14 @@ Video.propTypes = {
     bufferForPlaybackMs: PropTypes.number,
     bufferForPlaybackAfterRebufferMs: PropTypes.number,
   }),
+  captionConfig: PropTypes.shape({
+    style: PropTypes.shape({
+      foregroundColor: PropTypes.string,
+      backgroundColor: PropTypes.string,
+      windowColor: PropTypes.string,
+    }),
+    linesRespected: PropTypes.bool
+  }),
   stereoPan: PropTypes.number,
   rate: PropTypes.number,
   pictureInPicture: PropTypes.bool,
@@ -481,6 +496,7 @@ Video.propTypes = {
   hideShutterView: PropTypes.bool,
   onLoadStart: PropTypes.func,
   onLoad: PropTypes.func,
+  onPlayedTracksChange: PropTypes.func,
   onBuffer: PropTypes.func,
   onError: PropTypes.func,
   onProgress: PropTypes.func,

@@ -1,5 +1,15 @@
 ## Changelog
 
+### Version Dolby XP Android Changes
+
+- Android Exoplayer: Fix track selections. 
+  - Fix assumption of single render in method getTrackRendererIndex. Provide tracks from different renders of same type in onLoad callback
+  - Dispatch only support track in onLoad callback
+  - Fix choosing single track from a group .getFormat(0) in multiple places.
+  - Fix audio deselection
+  - Use setPreferredAudioLanguage/setPreferredTextLanguage when controlling track selection by language or making a default selection.
+  - Fix id used as audio/text track title  
+
 ### Version 6.0.0-alpha1
 
 - Convert iOS implementation to Swift
